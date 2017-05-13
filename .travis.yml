@@ -1,0 +1,50 @@
+# Use GCE infrastructure to get more resources
+dist: trusty
+sudo: required
+
+# Do not choose a language; we provide our own build tools.
+language: generic
+
+# Caching so the next build will be fast too.
+cache:
+  directories:
+  - $HOME/.stack
+
+# Ensure necessary system libraries are present
+addons: {apt: {packages: &default_packages [libgmp-dev, happy]}}
+
+before_install:
+# Download and unpack the stack executable
+- mkdir -p ~/.local/bin
+- export PATH=$HOME/.local/bin:$PATH
+- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+
+# QuickFuzz build matrix
+matrix:
+  include:
+  # Haskell platform matrix
+  - env: FLAG="--flag QuickFuzz:all"
+    addons: {apt: {packages: [*default_packages, alex]}}
+  - env: FLAG="--flag QuickFuzz:all --resolver lts-5"
+    addons: {apt: {packages: [*default_packages, alex]}}
+  - env: FLAG="--flag QuickFuzz:all --resolver lts-6"
+    addons: {apt: {packages: [*default_packages, alex]}}
+  # Flag matrix
+  - env: FLAG=
+  - env: FLAG="--flag QuickFuzz:debug"
+  - env: FLAG="--flag QuickFuzz:image"
+  - env: FLAG="--flag QuickFuzz:arch"
+  - env: FLAG="--flag QuickFuzz:code"
+    addons: {apt: {packages: [*default_packages, alex]}}
+  - env: FLAG="--flag QuickFuzz:doc"
+  - env: FLAG="--flag QuickFuzz:media"
+  - env: FLAG="--flag QuickFuzz:pki"
+  - env: FLAG="--flag QuickFuzz:net"
+
+install:
+# Build dependencies
+- travis_wait 40 stack --no-terminal --install-ghc test --only-dependencies $FLAG
+
+script:
+# Build the package, its tests, and run the tests
+- stack --no-terminal test $FLAG

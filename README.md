@@ -9,6 +9,7 @@ on existing file-format-handling libraries available on the Haskell
 code repository. There is more information in its [website](http://QuickFuzz.org/).
 
 [![CircleCI](https://circleci.com/gh/CIFASIS/QuickFuzz.svg?style=svg)](https://circleci.com/gh/CIFASIS/QuickFuzz)
+[![Build Status](https://travis-ci.org/elopez/QuickFuzz.svg?branch=master)](https://travis-ci.org/elopez/QuickFuzz)
 
 
 ## Example
